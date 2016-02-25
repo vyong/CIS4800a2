@@ -62,6 +62,7 @@ GLfloat blue[]  = {0.0, 0.0, 1.0, 1.0};
 GLfloat red[]   = {1.0, 0.0, 0.0, 1.0};
 GLfloat green[] = {0.0, 1.0, 0.0, 1.0};
 GLfloat white[] = {1.0, 1.0, 1.0, 1.0};
+int x, z;
 
 	glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -79,28 +80,42 @@ GLfloat white[] = {1.0, 1.0, 1.0, 1.0};
 
 	/* set starting location of objects */
 	glPushMatrix ();
-	glTranslatef(0.0, 0.0, -7.0);
+	glTranslatef(-11.0, 0.0, -15.0);
 	glRotatef (20.0, 1.0, 0.0, 0.0);
+
+	/*test inputs */
+	glPushMatrix();
+	for (x = 1; x < width-1; x++) { 
+		for (z = 1; z < height-1; z++) {
+			glBegin(GL_TRIANGLES);
+			glVertex3i(   x, heightMap[x][z]    , z );
+			glVertex3i( x+1, heightMap[x+1][z]  , z );
+			glVertex3i( x+1, heightMap[x+1][z+1], z + 1);
+			glVertex3i(   x, heightMap[x][z+1]  , z + 1);
+			glEnd();
+		}
+	}
+	glPopMatrix();
 
 	/* give all objects the same shininess value */
 	glMaterialf(GL_FRONT, GL_SHININESS, 30.0);
 
-	/* set colour of cone */
-	glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, red);
-	glMaterialfv(GL_FRONT, GL_SPECULAR, white);
-	/* move to location for object then draw it */
-	glPushMatrix ();
-	glTranslatef (-0.75, -0.5, 0.0); 
-	glRotatef (270.0, 1.0, 0.0, 0.0);
-	glutSolidCone (1.0, 2.0, 15, 15);
-	glPopMatrix ();
+	// /* set colour of cone */
+	// glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, red);
+	// glMaterialfv(GL_FRONT, GL_SPECULAR, white);
+	//  move to location for object then draw it 
+	// glPushMatrix ();
+	// glTranslatef (-0.75, -0.5, 0.0); 
+	// glRotatef (270.0, 1.0, 0.0, 0.0);
+	// glutSolidCone (1.0, 2.0, 15, 15);
+	// glPopMatrix ();
 
-	/* set colour of sphere */
-	glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, green);
-	glMaterialfv(GL_FRONT, GL_SPECULAR, white);
-	/* move to location for object then draw it */
-	glPushMatrix ();
-	glTranslatef (0.75, 0.0, -1.0); 
+	// /* set colour of sphere */
+	// glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, green);
+	// glMaterialfv(GL_FRONT, GL_SPECULAR, white);
+	// /* move to location for object then draw it */
+	// glPushMatrix ();
+	// glTranslatef (0.75, 0.0, -1.0); 
 
 	/* turn texturing on */
 	if (textures == 1) {
@@ -110,21 +125,21 @@ GLfloat white[] = {1.0, 1.0, 1.0, 1.0};
 		glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, white);
 	}
 
-	glutSolidSphere (1.0, 15, 15);
+	//glutSolidSphere (1.0, 15, 15);
 
 	if (textures == 1) 
 		glDisable(GL_TEXTURE_2D);
 	glPopMatrix ();
 
-	/* set colour of torus */
-	glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, blue);
-	glMaterialfv(GL_FRONT, GL_SPECULAR, white);
-	/* move to location for object then draw it */
-	glPushMatrix ();
-	glTranslatef (-0.75, 0.5, 0.0); 
-	glRotatef (90.0, 1.0, 0.0, 0.0);
-	glutSolidTorus (0.275, 0.85, 15, 15);
-	glPopMatrix ();
+	// /* set colour of torus */
+	// glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, blue);
+	// glMaterialfv(GL_FRONT, GL_SPECULAR, white);
+	//  move to location for object then draw it 
+	// glPushMatrix ();
+	// glTranslatef (-0.75, 0.5, 0.0); 
+	// glRotatef (90.0, 1.0, 0.0, 0.0);
+	// glutSolidTorus (0.275, 0.85, 15, 15);
+	// glPopMatrix ();
 
 	glPopMatrix ();
 	glFlush ();
