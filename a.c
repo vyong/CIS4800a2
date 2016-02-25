@@ -112,6 +112,23 @@ float xModified, zModified;
 			zModified = (z+1)/height;
 			glVertex3f(xModified, (heightMap[(int)x][(int)z+1])/maxDepth, zModified);
 			glEnd();
+
+			glBegin(GL_TRIANGLES);
+			// glVertex3f (x, 0, z);
+			// glVertex3f (x + 1, 0, z);
+			// glVertex3f (x, 0, z + 1);
+			xModified = x/width;
+			zModified = z/height;
+			glVertex3f(xModified, (heightMap[(int)x][(int)z])/maxDepth, zModified);
+
+			xModified = (x+1)/width;
+			zModified = z/height;
+			glVertex3f(xModified, (heightMap[(int)x+1][(int)z])/maxDepth, zModified);
+
+			xModified = x/width;
+			zModified = (z+1)/height;
+			glVertex3f(xModified, (heightMap[(int)x][(int)z+1])/maxDepth, zModified);
+			glEnd();
 		}
 	}
 	glPopMatrix();
