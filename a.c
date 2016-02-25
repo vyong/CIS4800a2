@@ -4,14 +4,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-/*
+
 #include <GL/gl.h>
 #include <GL/glu.h>
+#include <GL/glx.h>
 #include <GL/glut.h>
-*/
-#include <OpenGL/gl.h>
-#include <OpenGL/glu.h>
-#include <GLUT/glut.h>
+
+// #include <OpenGL/gl.h>
+// #include <OpenGL/glu.h>
+// #include <GLUT/glut.h>
 
 	/* flags used to control the appearance of the image */
 int lineDrawing = 1;	// draw polygons as solid or lines

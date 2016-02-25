@@ -10,3 +10,5 @@ a: a.c
 scene: scene.c
 	clang scene.c -o scene $(LIBS) $(TARGET)
 
+ubuntu: a.c
+	gcc -o a a.c -lglut -lGLU -lGL -lXmu -lXext -lX11 -lm
