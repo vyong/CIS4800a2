@@ -88,10 +88,10 @@ int x, z;
 	for (x = 1; x < width-1; x++) { 
 		for (z = 1; z < height-1; z++) {
 			glBegin(GL_TRIANGLES);
-			glVertex3i(   x, heightMap[x][z]    , z );
-			glVertex3i( x+1, heightMap[x+1][z]  , z );
-			glVertex3i( x+1, heightMap[x+1][z+1], z + 1);
-			glVertex3i(   x, heightMap[x][z+1]  , z + 1);
+			glVertex3i(x, heightMap[x][z], z);
+			glVertex3i(x+1, heightMap[x+1][z], z);
+			glVertex3i(x+1, heightMap[x+1][z+1], z+1);
+			glVertex3i(x, heightMap[x][z+1], z+1);
 			glEnd();
 		}
 	}
@@ -152,8 +152,10 @@ void reshape(int w, int h)
 	glLoadIdentity ();
 	gluPerspective(45.0, (GLfloat)w/(GLfloat)h, 1.0, 10.0);
 	glMatrixMode (GL_MODELVIEW);
+	//glFrustum(-1.0, 1.0, -1.0, 1.0, 3.0, 500.0);
+	//glFrustum (-1.0, 1.0, -1.0, 1.0, 1.5, 20.0);
 	glLoadIdentity ();
-	
+	//gluPerspective(60,1024/768,0.1,100);
 }
 
 void keyboard(unsigned char key, int x, int y)
@@ -200,6 +202,36 @@ void keyboard(unsigned char key, int x, int y)
 			lighting = 1;
 			smoothShading = 1;
 			textures = 1;
+			init();
+			display();
+			break;
+		case 'w':		// draw polygons as outlines
+			glTranslatef(0.0, 0.0, 0.5);
+			init();
+			display();
+			break;
+		case 'd':		// draw polygons as outlines
+			glTranslatef(-1.0, 0.0, 0.0);
+			init();
+			display();
+			break;
+		case 'a':		// draw polygons as outlines
+			glTranslatef(1.0, 0.0, 0.0);
+			init();
+			display();
+			break;
+		case 's':		// draw polygons as outlines
+			glTranslatef(0.0, 0.0,-0.5);
+			init();
+			display();
+			break;
+		case 'f':		// draw polygons as outlines
+			glTranslatef(0.0, -1.0, 0.0);
+			init();
+			display();
+			break;
+		case 'v':		// draw polygons as outlines
+			glTranslatef(0.0, 1.0,0.0);
 			init();
 			display();
 			break;
