@@ -153,6 +153,7 @@ void reshape(int w, int h)
 	gluPerspective(45.0, (GLfloat)w/(GLfloat)h, 1.0, 10.0);
 	glMatrixMode (GL_MODELVIEW);
 	glLoadIdentity ();
+	
 }
 
 void keyboard(unsigned char key, int x, int y)
