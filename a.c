@@ -21,7 +21,7 @@ int smoothShading = 0;  // smooth or flat shading
 int textures = 0;
 
 int **heightMap;
-int width, height, depth;
+int width, height, depth, maxDepth = 0;
 
 GLubyte  Image[64][64][4];
 GLuint   textureID[1];
@@ -62,7 +62,8 @@ GLfloat blue[]  = {0.0, 0.0, 1.0, 1.0};
 GLfloat red[]   = {1.0, 0.0, 0.0, 1.0};
 GLfloat green[] = {0.0, 1.0, 0.0, 1.0};
 GLfloat white[] = {1.0, 1.0, 1.0, 1.0};
-int x, z;
+float x, z;
+float xModified, zModified;
 
 	glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -80,30 +81,48 @@ int x, z;
 
 	/* set starting location of objects */
 	glPushMatrix ();
-	glTranslatef(-11.0, 0.0, -15.0);
-	glRotatef (20.0, 1.0, 0.0, 0.0);
+	// glTranslatef(-11.0, 0.0, -15.0);
+	// glRotatef (20.0, 1.0, 0.0, 0.0);
 
 	/*test inputs */
 	glPushMatrix();
-	for (x = 1; x < width-1; x++) { 
-		for (z = 1; z < height-1; z++) {
+	glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, red);
+
+	// glBegin(GL_TRIANGLES);
+	// glVertex3f (0, 0, 0);
+	// glVertex3f (1, 1, 0);
+	// glVertex3f (0, 1, 0);
+	// glEnd ();
+
+	for (x = 0; x < width-1; x++) { 
+		for (z = 0; z < height-1; z++) {
 			glBegin(GL_TRIANGLES);
-			glVertex3i(x, heightMap[x][z], z);
-			glVertex3i(x+1, heightMap[x+1][z], z);
-			glVertex3i(x+1, heightMap[x+1][z+1], z+1);
-			glVertex3i(x, heightMap[x][z+1], z+1);
+			// glVertex3f (x, 0, z);
+			// glVertex3f (x + 1, 0, z);
+			// glVertex3f (x, 0, z + 1);
+			xModified = x/width;
+			zModified = z/height;
+			glVertex3f(xModified, (heightMap[(int)x][(int)z])/maxDepth, zModified);
+
+			xModified = (x+1)/width;
+			zModified = z/height;
+			glVertex3f(xModified, (heightMap[(int)x+1][(int)z])/maxDepth, zModified);
+
+			xModified = x/width;
+			zModified = (z+1)/height;
+			glVertex3f(xModified, (heightMap[(int)x][(int)z+1])/maxDepth, zModified);
 			glEnd();
 		}
 	}
 	glPopMatrix();
 
 	/* give all objects the same shininess value */
-	glMaterialf(GL_FRONT, GL_SHININESS, 30.0);
+	// glMaterialf(GL_FRONT, GL_SHININESS, 30.0);
 
 	// /* set colour of cone */
 	// glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, red);
 	// glMaterialfv(GL_FRONT, GL_SPECULAR, white);
-	//  move to location for object then draw it 
+	// // move to location for object then draw it 
 	// glPushMatrix ();
 	// glTranslatef (-0.75, -0.5, 0.0); 
 	// glRotatef (270.0, 1.0, 0.0, 0.0);
@@ -150,11 +169,16 @@ void reshape(int w, int h)
 	glViewport (0, 0, (GLsizei) w, (GLsizei) h);
 	glMatrixMode (GL_PROJECTION);
 	glLoadIdentity ();
-	gluPerspective(45.0, (GLfloat)w/(GLfloat)h, 1.0, 10.0);
+	gluPerspective(45.0, (GLfloat)w/(GLfloat)h, 1.0, 1000.0);
 	glMatrixMode (GL_MODELVIEW);
+	gluLookAt (
+		0, 0, 2,
+		0, 0, 0,
+		0, 1, 0
+		);
 	//glFrustum(-1.0, 1.0, -1.0, 1.0, 3.0, 500.0);
 	//glFrustum (-1.0, 1.0, -1.0, 1.0, 1.5, 20.0);
-	glLoadIdentity ();
+	// glLoadIdentity ();
 	//gluPerspective(60,1024/768,0.1,100);
 }
 
@@ -331,6 +355,9 @@ int count = 0, x, y = 0, convertedNum;
 							//printf("%d\n", atoi(buffer));
 							convertedNum = atoi(buffer);
 							heightMap[x][y] = convertedNum;
+							if (convertedNum > maxDepth){
+								maxDepth = convertedNum;
+							}
 
 							x++;
 							if(x == width){
