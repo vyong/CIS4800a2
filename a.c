@@ -270,7 +270,7 @@ int count = 0, x, y = 0, convertedNum;
 					else if( count == 1) {
 						depth = atof(instr);
 						count++;
-						printf("Width: %d, Height: %d, Depth: %d\n", width, height, depth);
+						//printf("Width: %d, Height: %d, Depth: %d\n", width, height, depth);
 
 						
 
@@ -282,7 +282,6 @@ int count = 0, x, y = 0, convertedNum;
 						while (buffer != NULL){
 							//printf("%d\n", atoi(buffer));
 							convertedNum = atoi(buffer);
-							printf("HELLO!!!!!!\n");
 							heightMap[x][y] = convertedNum;
 
 							x++;
@@ -290,22 +289,14 @@ int count = 0, x, y = 0, convertedNum;
 								y++;
 								x = 0;
 							}
-							//shapeList[count][entry] = atof(buffer);
-							//printf("%f\n", shapeList[count][entry]);
 							buffer = strtok(NULL, "  ");
 						}
 					}
-					//printf("\n");
 			}//end else
 		}//end while
 		
 	}//end else
-	fclose(fp);
-
-	printf("%i\n", heightMap[1][1]);
-	printf("%i\n", heightMap[22][3]);
-	//printf("Count: %d\n", numberLevels);
-	
+	fclose(fp);	
 }
 
 /*  Main Loop
