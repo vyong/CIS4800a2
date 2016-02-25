@@ -20,7 +20,7 @@ int lighting = 0;	// use diffuse and specular lighting
 int smoothShading = 0;  // smooth or flat shading
 int textures = 0;
 
-int ** heightMap;
+int **heightMap;
 int width, height, depth;
 
 GLubyte  Image[64][64][4];
@@ -231,7 +231,7 @@ void readFile(char **argv) {
 FILE *fp;
 char instr[1024];
 char * buffer;
-int count = 0;
+int count = 0, x, y = 0, convertedNum;
 
 	/* open file and print error message if name incorrect */
 	if ((fp = fopen(argv[1], "r")) == NULL) {
@@ -251,29 +251,49 @@ int count = 0;
 			else {
 					if(count == 0) {
 						buffer = strtok(instr, " ");
-						width = atof(buffer);
+						width = atoi(buffer);
+
+						heightMap = (int **)malloc(width * sizeof(int *));
 
 						buffer = strtok(NULL, " ");
-						height = atof(buffer);
+						height = atoi(buffer);
+
+						for(x = 0; x < width; x++){
+							heightMap[x] = (int *)malloc(height * sizeof(int));
+						}
 
 						count++;
+						x = 0;
 
 					}
 
 					else if( count == 1) {
 						depth = atof(instr);
 						count++;
+						printf("Width: %d, Height: %d, Depth: %d\n", width, height, depth);
+
+						
+
 					}
 
 					else {
-						printf("Width: %d, Height: %d, Depth: %d\n", width, height, depth);
-						// buffer = strtok(instr, "  ");
+						buffer = strtok(instr, "  ");
 
-						// while (buffer != NULL){
-						// 	//shapeList[count][entry] = atof(buffer);
-						// 	//printf("%f\n", shapeList[count][entry]);
-						// 	buffer = strtok(NULL, "\t ");
-						// }
+						while (buffer != NULL){
+							//printf("%d\n", atoi(buffer));
+							convertedNum = atoi(buffer);
+							printf("HELLO!!!!!!\n");
+							heightMap[x][y] = convertedNum;
+
+							x++;
+							if(x == width){
+								y++;
+								x = 0;
+							}
+							//shapeList[count][entry] = atof(buffer);
+							//printf("%f\n", shapeList[count][entry]);
+							buffer = strtok(NULL, "  ");
+						}
 					}
 					//printf("\n");
 			}//end else
@@ -281,6 +301,9 @@ int count = 0;
 		
 	}//end else
 	fclose(fp);
+
+	printf("%i\n", heightMap[1][1]);
+	printf("%i\n", heightMap[22][3]);
 	//printf("Count: %d\n", numberLevels);
 	
 }
