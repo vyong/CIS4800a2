@@ -141,31 +141,31 @@ float xModified, zModified;
 	for (x = 0; x < width-1; x++) { 
 		for (z = 0; z < height-1; z++) {
 			glBegin(GL_TRIANGLES);
-			xModified = x/3;
-			zModified = z/3;
+			xModified = x/4;
+			zModified = z/4;
 			glVertex3f(xModified, (heightMap[(int)x][(int)z]), zModified);
 
-			xModified = (x+1)/3;
-			zModified = z/3;
+			xModified = (x+1)/4;
+			zModified = z/4;
 			glVertex3f(xModified, (heightMap[(int)x+1][(int)z]), zModified);
 
-			xModified = x/3;
-			zModified = (z+1)/3;
+			xModified = x/4;
+			zModified = (z+1)/4;
 			glVertex3f(xModified, (heightMap[(int)x][(int)z+1]), zModified);
 			glEnd();
 
 			glBegin(GL_TRIANGLES);
 			
-			xModified = (x+1)/3;
-			zModified = z/3;
+			xModified = (x+1)/4;
+			zModified = z/4;
 			glVertex3f(xModified, (heightMap[(int)x+1][(int)z]), zModified);
 
-			xModified = x/3;
-			zModified = (z+1)/3;
+			xModified = x/4;
+			zModified = (z+1)/4;
 			glVertex3f(xModified, (heightMap[(int)x][(int)z+1]), zModified);
 
-			xModified = (x+1)/3;
-			zModified = (z+1)/3;
+			xModified = (x+1)/4;
+			zModified = (z+1)/4;
 			glVertex3f(xModified, (heightMap[(int)x+1][(int)z+1]), zModified);
 			glEnd();
 		}
@@ -292,16 +292,16 @@ void mouse(int button, int state, int x, int y) {
 
 void motion(int x, int y) {
 	if(lButtonPressed >= 0){
-		camX = -(x/(width/7)) * -sinf(20*(M_PI/180)) * cosf((45)*(M_PI/180));
-		camY = -(x/(depth/7)) * -sinf((45)*(M_PI/180));
-		camZ = (x/(height/7)) * cosf((20)*(M_PI/180)) * cosf((45)*(M_PI/180));
+		camX = -(x/(width/8)) * -sinf(10*(M_PI/180)) * cosf((45)*(M_PI/180));
+		camY = -(x/(depth/8)) * -sinf((45)*(M_PI/180));
+		camZ = (x/(height/8)) * cosf((10)*(M_PI/180)) * cosf((45)*(M_PI/180));
 		printf("Mouse dragged with left button at %i, %i\n", x, y);
 
 		glMatrixMode (GL_MODELVIEW);
 		glLoadIdentity ();
 
 		gluLookAt(camX,camY,camZ,   // Camera position
-          width/7, 0, height/7,    // Look at point
+          width/8, 0, height/8,    // Look at point
           0.0, 1.0, 0.0);   // Up vector
 		// gluLookAt(	fmod(x,17), fmod(depth,7)/2, (height/7)*(-1),
 		// 	fmod(width,7)/2, fmod(depth,7)/2, fmod(height,7)/2,
