@@ -407,7 +407,7 @@ int count = 0, x, y = 0, convertedNum;
 						while (buffer != NULL){
 							//printf("%d\n", atoi(buffer));
 							convertedNum = atoi(buffer);
-							heightMap[x][y] = convertedNum;
+							heightMap[x][y] = convertedNum/4;
 							if (convertedNum > maxDepth){
 								maxDepth = convertedNum;
 							}
