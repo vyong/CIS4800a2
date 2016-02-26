@@ -14,4 +14,4 @@ ubuntu: a.c
 	gcc -o a a.c -lglut -lGLU -lGL -lXmu -lXext -lX11 -lm
 
 run:
-	./a textures/test.pgm
+	./a textures/screws.ascii.pgm

@@ -4,15 +4,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
-#include <GL/gl.h>
-#include <GL/glu.h>
-#include <GL/glx.h>
-#include <GL/glut.h>
+// #include <GL/gl.h>
+// #include <GL/glu.h>
+// #include <GL/glx.h>
+// #include <GL/glut.h>
 
-// #include <OpenGL/gl.h>
-// #include <OpenGL/glu.h>
-// #include <GLUT/glut.h>
+#include <OpenGL/gl.h>
+#include <OpenGL/glu.h>
+#include <GLUT/glut.h>
 
 	/* flags used to control the appearance of the image */
 int lineDrawing = 1;	// draw polygons as solid or lines
@@ -21,7 +22,13 @@ int smoothShading = 0;  // smooth or flat shading
 int textures = 0;
 
 int **heightMap;
-int width, height, depth, maxDepth = 0;
+int width, height, depth, maxDepth = 0, lButtonPressed = 0, rButtonPressed = 0;
+float camX, camY, camZ;
+
+// the key states. These variables will be zero
+//when no key is being presses
+float deltaAngle = 0.0f;
+float deltaMove = 0;
 
 GLubyte  Image[64][64][4];
 GLuint   textureID[1];
@@ -84,38 +91,6 @@ float xModified, zModified;
 	// glTranslatef(-11.0, 0.0, -15.0);
 	// glRotatef (20.0, 1.0, 0.0, 0.0);
 
-	/*test inputs */
-	glPushMatrix();
-	glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, red);
-
-	// glBegin(GL_TRIANGLES);
-	// glVertex3f (0, 0, 0);
-	// glVertex3f (1, 1, 0);
-	// glVertex3f (0, 1, 0);
-	// glEnd ();
-
-	for (x = 0; x < width-1; x++) { 
-		for (z = 0; z < height-1; z++) {
-			glBegin(GL_TRIANGLES);
-			// glVertex3f (x, 0, z);
-			// glVertex3f (x + 1, 0, z);
-			// glVertex3f (x, 0, z + 1);
-			xModified = x/width;
-			zModified = z/height;
-			glVertex3f(xModified, (heightMap[(int)x][(int)z])/maxDepth, zModified);
-
-			xModified = (x+1)/width;
-			zModified = z/height;
-			glVertex3f(xModified, (heightMap[(int)x+1][(int)z])/maxDepth, zModified);
-
-			xModified = x/width;
-			zModified = (z+1)/height;
-			glVertex3f(xModified, (heightMap[(int)x][(int)z+1])/maxDepth, zModified);
-			glEnd();
-		}
-	}
-	glPopMatrix();
-
 	/* give all objects the same shininess value */
 	// glMaterialf(GL_FRONT, GL_SHININESS, 30.0);
 
@@ -159,6 +134,44 @@ float xModified, zModified;
 	// glRotatef (90.0, 1.0, 0.0, 0.0);
 	// glutSolidTorus (0.275, 0.85, 15, 15);
 	// glPopMatrix ();
+	/*test inputs */
+	glPushMatrix();
+	glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, red);
+	glMaterialfv(GL_FRONT, GL_SPECULAR, red);
+
+	for (x = 0; x < width-1; x++) { 
+		for (z = 0; z < height-1; z++) {
+			glBegin(GL_TRIANGLES);
+			xModified = x/3;
+			zModified = z/3;
+			glVertex3f(xModified, (heightMap[(int)x][(int)z]), zModified);
+
+			xModified = (x+1)/3;
+			zModified = z/3;
+			glVertex3f(xModified, (heightMap[(int)x+1][(int)z]), zModified);
+
+			xModified = x/3;
+			zModified = (z+1)/3;
+			glVertex3f(xModified, (heightMap[(int)x][(int)z+1]), zModified);
+			glEnd();
+
+			glBegin(GL_TRIANGLES);
+			
+			xModified = (x+1)/3;
+			zModified = z/3;
+			glVertex3f(xModified, (heightMap[(int)x+1][(int)z]), zModified);
+
+			xModified = x/3;
+			zModified = (z+1)/3;
+			glVertex3f(xModified, (heightMap[(int)x][(int)z+1]), zModified);
+
+			xModified = (x+1)/3;
+			zModified = (z+1)/3;
+			glVertex3f(xModified, (heightMap[(int)x+1][(int)z+1]), zModified);
+			glEnd();
+		}
+	}
+	glPopMatrix ();
 
 	glPopMatrix ();
 	glFlush ();
@@ -171,15 +184,11 @@ void reshape(int w, int h)
 	glLoadIdentity ();
 	gluPerspective(45.0, (GLfloat)w/(GLfloat)h, 1.0, 1000.0);
 	glMatrixMode (GL_MODELVIEW);
-	gluLookAt (
-		0, 0, 2,
-		0, 0, 0,
-		0, 1, 0
-		);
-	//glFrustum(-1.0, 1.0, -1.0, 1.0, 3.0, 500.0);
-	//glFrustum (-1.0, 1.0, -1.0, 1.0, 1.5, 20.0);
-	// glLoadIdentity ();
-	//gluPerspective(60,1024/768,0.1,100);
+	glLoadIdentity ();
+	// Set the camera
+	gluLookAt(	fmod(width,7)/2, fmod(depth,7)/2, (height/7)*(-1),
+			fmod(width,7)/2, fmod(depth,7)/2, fmod(height,7)/2,
+			0.0, 1.0,  0.0);
 }
 
 void keyboard(unsigned char key, int x, int y)
@@ -259,6 +268,51 @@ void keyboard(unsigned char key, int x, int y)
 			init();
 			display();
 			break;
+	}
+}
+
+void mouse(int button, int state, int x, int y) {
+	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) { //left button and pressed
+		lButtonPressed = x;
+		// printf("left button pressed %i\n", lButtonPressed);
+	}
+	else if(button == GLUT_LEFT_BUTTON && state == GLUT_UP){
+		lButtonPressed = -1;
+		// printf("left button released %i\n", lButtonPressed);
+	}
+
+	else if (button == GLUT_RIGHT_BUTTON && state == GLUT_DOWN) { //right button and pressed
+		rButtonPressed = y;
+		// printf("right button pressed %i\n", rButtonPressed);
+	}
+	else {
+		rButtonPressed = -1;
+		// printf("right button released %i\n", rButtonPressed);
+	}
+}
+
+void motion(int x, int y) {
+	if(lButtonPressed >= 0){
+		camX = -(x/(width/7)) * -sinf(20*(M_PI/180)) * cosf((45)*(M_PI/180));
+		camY = -(x/(depth/7)) * -sinf((45)*(M_PI/180));
+		camZ = (x/(height/7)) * cosf((20)*(M_PI/180)) * cosf((45)*(M_PI/180));
+		printf("Mouse dragged with left button at %i, %i\n", x, y);
+
+		glMatrixMode (GL_MODELVIEW);
+		glLoadIdentity ();
+
+		gluLookAt(camX,camY,camZ,   // Camera position
+          width/7, 0, height/7,    // Look at point
+          0.0, 1.0, 0.0);   // Up vector
+		// gluLookAt(	fmod(x,17), fmod(depth,7)/2, (height/7)*(-1),
+		// 	fmod(width,7)/2, fmod(depth,7)/2, fmod(height,7)/2,
+		// 	1.0f, 1.0f,  0.0f);
+		display ();
+	}
+
+	else if(rButtonPressed == 1){
+		printf("Mouse dragged with right button at %i, %i\n", x, y);
+
 	}
 }
 
@@ -390,6 +444,9 @@ int main(int argc, char** argv)
 	glutReshapeFunc (reshape);
 	glutDisplayFunc(display);
 	glutKeyboardFunc (keyboard);
+	glutMouseFunc(mouse);
+	glutMotionFunc(motion);
+
 	glutMainLoop();
 	return 0; 
 }
