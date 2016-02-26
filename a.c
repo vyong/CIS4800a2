@@ -90,7 +90,6 @@ float xModified, zModified;
 	glPushMatrix ();
 	// glTranslatef(-11.0, 0.0, -15.0);
 	// glRotatef (20.0, 1.0, 0.0, 0.0);
-
 	/* give all objects the same shininess value */
 	// glMaterialf(GL_FRONT, GL_SHININESS, 30.0);
 
