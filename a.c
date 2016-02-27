@@ -320,16 +320,18 @@ void mouse(int button, int state, int x, int y) {
 
 void motion(int x, int y) {
 	if(lButtonPressed >= 0){
+
 		camX = -(x/(width/6)) * -sinf(10*(M_PI/180)) * cosf((45)*(M_PI/180));
 		camY = -(x/(depth/6)) * -sinf((45)*(M_PI/180));
 		camZ = (x/(height/6)) * cosf((10)*(M_PI/180)) * cosf((45)*(M_PI/180));
-		//printf("Mouse dragged with left button at %i, %i\n", x, y);
+		
+		printf("Mouse dragged at %i, %i\n", x, y);
 
 		glMatrixMode (GL_MODELVIEW);
 		glLoadIdentity ();
 
 		gluLookAt(camX,camY,camZ,   // Camera position
-		  width/2, 0, height/2,    // Look at point
+		  width/2, maxDepth/2, height/2,    // Look at point
 		  0.0, 1.0, 0.0);   // Up vector
 		// gluLookAt(	fmod(x,17), fmod(depth,7)/2, (height/7)*(-1),
 		// 	fmod(width,7)/2, fmod(depth,7)/2, fmod(height,7)/2,
@@ -343,7 +345,7 @@ void motion(int x, int y) {
 		glMatrixMode (GL_MODELVIEW);
 		glLoadIdentity ();
 
-		gluLookAt(width/2, y, height/2,    // Look at point
+		gluLookAt(x, y, 0,    // Look at point
 			width/2, 0, height/2,
         	0.0, 1.0, 0.0);   // Up vector
 		// gluLookAt(	fmod(x,17), fmod(depth,7)/2, (height/7)*(-1),
