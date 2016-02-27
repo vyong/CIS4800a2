@@ -39,6 +39,7 @@ int lineDrawing = 1;	// draw polygons as solid or lines
 int lighting = 0;	// use diffuse and specular lighting
 int smoothShading = 0;  // smooth or flat shading
 int textures = 0;
+int heightColor = 0;
 
 float **heightMap;
 int width, height, depth, maxDepth = 0, lButtonPressed = 0, rButtonPressed = 0;
@@ -91,6 +92,10 @@ GLfloat red[]   = {1.0, 0.0, 0.0, 1.0};
 GLfloat green[] = {0.0, 1.0, 0.0, 1.0};
 GLfloat white[] = {1.0, 1.0, 1.0, 1.0};
 GLfloat light_gray[] = {0.3, 0.3, 0.3, 0.3};
+GLfloat brown[] = {0.5, 0.35, 0.05, 0.35};
+
+
+float bottomThirdLimit, topThirdLimit;
 Triangle * curr = head;
 
 	glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -112,25 +117,83 @@ Triangle * curr = head;
 		glEnable(GL_TEXTURE_2D);
 		glBindTexture(GL_TEXTURE_2D, textureID[0]);
 	/* if textured, then use white as base colour */
-		glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, white);
+		glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, light_gray);
 	}
 
 	if (textures == 1) 
 		glDisable(GL_TEXTURE_2D);
 
 	glPushMatrix();
-	glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, light_gray);
-	glMaterialfv(GL_FRONT, GL_SPECULAR, light_gray);
 
-	while(curr != NULL){
-		glBegin(GL_TRIANGLES);
-		glNormal3f(curr->normal->Nx, curr->normal->Ny, curr->normal->Nz);
-		glVertex3f(curr->v1->x, curr->v1->y, curr->v1->z);
-		glVertex3f(curr->v2->x, curr->v2->y, curr->v2->z);
-		glVertex3f(curr->v3->x, curr->v3->y, curr->v3->z);
-		glEnd();
+	if(heightColor == 1){
+		while(curr != NULL){
+			bottomThirdLimit = height * 0.33;
+			topThirdLimit = height * 0.67;
+			glBegin(GL_TRIANGLES);
+			glNormal3f(curr->normal->Nx, curr->normal->Ny, curr->normal->Nz);
 
-		curr = curr->nextTri;
+			if(curr->v1->y <= bottomThirdLimit){
+				glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, brown);
+				glMaterialfv(GL_FRONT, GL_SPECULAR, brown);
+			}
+			else if(curr->v1->y > bottomThirdLimit && curr->v1->y < topThirdLimit){
+				glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, green);
+				glMaterialfv(GL_FRONT, GL_SPECULAR, green);
+			}
+			else {
+				glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, white);
+				glMaterialfv(GL_FRONT, GL_SPECULAR, white);	
+			}
+			glVertex3f(curr->v1->x, curr->v1->y, curr->v1->z);
+
+			if(curr->v2->y <= bottomThirdLimit){
+				glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, brown);
+				glMaterialfv(GL_FRONT, GL_SPECULAR, brown);
+			}
+			else if(curr->v2->y > bottomThirdLimit && curr->v2->y < topThirdLimit){
+				glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, green);
+				glMaterialfv(GL_FRONT, GL_SPECULAR, green);
+			}
+			else {
+				glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, white);
+				glMaterialfv(GL_FRONT, GL_SPECULAR, white);	
+			}
+			glVertex3f(curr->v2->x, curr->v2->y, curr->v2->z);
+
+
+			if(curr->v3->y <= bottomThirdLimit){
+				glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, brown);
+				glMaterialfv(GL_FRONT, GL_SPECULAR, brown);
+			}
+			else if(curr->v3->y > bottomThirdLimit && curr->v3->y < topThirdLimit){
+				glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, green);
+				glMaterialfv(GL_FRONT, GL_SPECULAR, green);
+			}
+			else {
+				glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, white);
+				glMaterialfv(GL_FRONT, GL_SPECULAR, white);	
+			}
+			glVertex3f(curr->v3->x, curr->v3->y, curr->v3->z);
+			glEnd();
+
+			curr = curr->nextTri;
+		}
+	}
+
+	else{
+		glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, light_gray);
+		glMaterialfv(GL_FRONT, GL_SPECULAR, light_gray);
+
+		while(curr != NULL){
+			glBegin(GL_TRIANGLES);
+			glNormal3f(curr->normal->Nx, curr->normal->Ny, curr->normal->Nz);
+			glVertex3f(curr->v1->x, curr->v1->y, curr->v1->z);
+			glVertex3f(curr->v2->x, curr->v2->y, curr->v2->z);
+			glVertex3f(curr->v3->x, curr->v3->y, curr->v3->z);
+			glEnd();
+
+			curr = curr->nextTri;
+		}
 	}
 	glPopMatrix ();
 
@@ -164,6 +227,7 @@ void keyboard(unsigned char key, int x, int y)
 			lighting = 0;
 			smoothShading = 0;
 			textures = 0;
+			heightColor = 0;
 			init();
 			display();
 			break;
@@ -172,6 +236,7 @@ void keyboard(unsigned char key, int x, int y)
 			lighting = 0;
 			smoothShading = 0;
 			textures = 0;
+			heightColor = 0;
 			init();
 			display();
 			break;
@@ -180,6 +245,7 @@ void keyboard(unsigned char key, int x, int y)
 			lighting = 1;
 			smoothShading = 0;
 			textures = 0;
+			heightColor = 0;
 			init();
 			display();
 			break;
@@ -188,6 +254,7 @@ void keyboard(unsigned char key, int x, int y)
 			lighting = 1;
 			smoothShading = 1;
 			textures = 0;
+			heightColor = 1;
 			init();
 			display();
 			break;
@@ -196,6 +263,7 @@ void keyboard(unsigned char key, int x, int y)
 			lighting = 1;
 			smoothShading = 1;
 			textures = 1;
+			heightColor = 0;
 			init();
 			display();
 			break;
