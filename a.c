@@ -21,18 +21,18 @@ struct Vertexes {
 };
 typedef struct Vertexes Vertex;
 
-struct Triangles {
-	struct Vertexes *v1, *v2, *v3;
-	struct Triangles * nextTri;
-};
-typedef struct Triangles Triangle;
-
 struct Normals {
 	float Nx, Ny, Nz;
-	struct Normals * nextNormal;
 
 };
 typedef struct Normals Normal;
+
+struct Triangles {
+	struct Vertexes *v1, *v2, *v3;
+	struct Normals * normal;
+	struct Triangles * nextTri;
+};
+typedef struct Triangles Triangle;
 
 	/* flags used to control the appearance of the image */
 int lineDrawing = 1;	// draw polygons as solid or lines
@@ -52,7 +52,7 @@ float deltaMove = 0;
 GLubyte  Image[64][64][4];
 GLuint   textureID[1];
 
-Normal * head;
+Triangle * head;
 
 /*  Initialize material property and light source.
  */
@@ -91,9 +91,7 @@ GLfloat red[]   = {1.0, 0.0, 0.0, 1.0};
 GLfloat green[] = {0.0, 1.0, 0.0, 1.0};
 GLfloat white[] = {1.0, 1.0, 1.0, 1.0};
 GLfloat light_gray[] = {0.3, 0.3, 0.3, 0.3};
-float x, z;
-float xModified, zModified;
-float vector1x, vector1y, vector1z, vector2x, vector2y, vector2z, normalx, normaly, normalz;
+Triangle * curr = head;
 
 	glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -117,86 +115,22 @@ float vector1x, vector1y, vector1z, vector2x, vector2y, vector2z, normalx, norma
 		glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, white);
 	}
 
-	//glutSolidSphere (1.0, 15, 15);
-
 	if (textures == 1) 
 		glDisable(GL_TEXTURE_2D);
 
-	// /* set colour of torus */
-	// glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, blue);
-	// glMaterialfv(GL_FRONT, GL_SPECULAR, white);
-	//  move to location for object then draw it 
-	// glPushMatrix ();
-	// glTranslatef (-0.75, 0.5, 0.0); 
-	// glRotatef (90.0, 1.0, 0.0, 0.0);
-	// glutSolidTorus (0.275, 0.85, 15, 15);
-	// glPopMatrix ();
-	/*test inputs */
 	glPushMatrix();
 	glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, light_gray);
 	glMaterialfv(GL_FRONT, GL_SPECULAR, light_gray);
 
-	for (x = 0; x < width-1; x++) { 
-		for (z = 0; z < height-1; z++) {
-			glBegin(GL_TRIANGLES);
+	while(curr != NULL){
+		glBegin(GL_TRIANGLES);
+		glNormal3f(curr->normal->Nx, curr->normal->Ny, curr->normal->Nz);
+		glVertex3f(curr->v1->x, curr->v1->y, curr->v1->z);
+		glVertex3f(curr->v2->x, curr->v2->y, curr->v2->z);
+		glVertex3f(curr->v3->x, curr->v3->y, curr->v3->z);
+		glEnd();
 
-			/* calculate Normal for top left triangle */
-
-			vector1x = x - x;
-			vector1y = (heightMap[(int)x][(int)z+1]) - (heightMap[(int)x][(int)z]);
-			vector1z = (z+1) - z;
-
-			vector2x = (x+1) - x;
-			vector2y = (heightMap[(int)x+1][(int)z]) - (heightMap[(int)x][(int)z]);
-			vector2z = z - z;
-
-			normalx = vector1y * vector2z - vector2y * vector1z;
-			normaly = vector1z * vector2x - vector2z * vector1x;
-			normalz = vector1x * vector2y - vector2x * vector1y;
-
-
-			xModified = x;
-			zModified = z;
-			glNormal3f(normalx, normaly, normalz);
-			glVertex3f(xModified, (heightMap[(int)x][(int)z]), zModified);
-
-			xModified = x;
-			zModified = (z+1);
-			glVertex3f(xModified, (heightMap[(int)x][(int)z+1]), zModified);
-
-
-			xModified = (x+1);
-			zModified = z;
-			glVertex3f(xModified, (heightMap[(int)x+1][(int)z]), zModified);
-
-			
-			/* calculate Normal for bottom right triangle */
-			vector1x = (x+1) - x;
-			vector1y = (heightMap[(int)x+1][(int)z+1]) - (heightMap[(int)x][(int)z+1]);
-			vector1z = (z+1) - (z+1);
-
-			vector2x = (x+1) - x;
-			vector2y = (heightMap[(int)x+1][(int)z]) - (heightMap[(int)x][(int)z+1]);
-			vector2z = z - (z+1);
-
-			normalx = vector1y * vector2z - vector2y * vector1z;
-			normaly = vector1z * vector2x - vector2z * vector1x;
-			normalz = vector1x * vector2y - vector2x * vector1y;
-
-			xModified = x;
-			zModified = (z+1);
-			glNormal3f(normalx, normaly, normalz);
-			glVertex3f(xModified, (heightMap[(int)x][(int)z+1]), zModified);
-			
-			xModified = (x+1);
-			zModified = (z+1);
-			glVertex3f(xModified, (heightMap[(int)x+1][(int)z+1]), zModified);
-
-			xModified = (x+1);
-			zModified = z;
-			glVertex3f(xModified, (heightMap[(int)x+1][(int)z]), zModified);
-			glEnd();
-		}
+		curr = curr->nextTri;
 	}
 	glPopMatrix ();
 
@@ -213,7 +147,7 @@ void reshape(int w, int h)
 	glMatrixMode (GL_MODELVIEW);
 	glLoadIdentity ();
 	// Set the camera
-	gluLookAt(	fmod(width,7)/2, fmod(depth,7)/2, ((height/7)+10)*(-1),
+	gluLookAt(	fmod(width,7)/2, fmod(depth,7)/2, ((height/7))*(-1),
 			fmod(width,7)/2, fmod(depth,7)/2, fmod(height,7)/2,
 			0.0, 1.0,  0.0);
 }
@@ -301,20 +235,16 @@ void keyboard(unsigned char key, int x, int y)
 void mouse(int button, int state, int x, int y) {
 	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) { //left button and pressed
 		lButtonPressed = x;
-		// printf("left button pressed %i\n", lButtonPressed);
 	}
 	else if(button == GLUT_LEFT_BUTTON && state == GLUT_UP){
 		lButtonPressed = -1;
-		// printf("left button released %i\n", lButtonPressed);
 	}
 
 	else if (button == GLUT_RIGHT_BUTTON && state == GLUT_DOWN) { //right button and pressed
 		rButtonPressed = y;
-		// printf("right button pressed %i\n", rButtonPressed);
 	}
 	else {
 		rButtonPressed = -1;
-		// printf("right button released %i\n", rButtonPressed);
 	}
 }
 
@@ -325,7 +255,6 @@ void motion(int x, int y) {
 		camY = -(x/(depth/6)) * -sinf((45)*(M_PI/180));
 		camZ = (x/(height/6)) * cosf((10)*(M_PI/180)) * cosf((45)*(M_PI/180));
 		
-		printf("Mouse dragged at %i, %i\n", x, y);
 
 		glMatrixMode (GL_MODELVIEW);
 		glLoadIdentity ();
@@ -333,24 +262,16 @@ void motion(int x, int y) {
 		gluLookAt(camX,camY,camZ,   // Camera position
 		  width/2, maxDepth/2, height/2,    // Look at point
 		  0.0, 1.0, 0.0);   // Up vector
-		// gluLookAt(	fmod(x,17), fmod(depth,7)/2, (height/7)*(-1),
-		// 	fmod(width,7)/2, fmod(depth,7)/2, fmod(height,7)/2,
-		// 	1.0f, 1.0f,  0.0f);
 		display ();
 	}
 
 	else if(rButtonPressed >= 1){
-		//printf("Mouse dragged with right button at %i, %i\n", x, y);
-
 		glMatrixMode (GL_MODELVIEW);
 		glLoadIdentity ();
 
 		gluLookAt(x, y, 0,    // Look at point
 			width/2, 0, height/2,
         	0.0, 1.0, 0.0);   // Up vector
-		// gluLookAt(	fmod(x,17), fmod(depth,7)/2, (height/7)*(-1),
-		// 	fmod(width,7)/2, fmod(depth,7)/2, fmod(height,7)/2,
-		// 	1.0f, 1.0f,  0.0f);
 		display ();
 
 	}
@@ -398,6 +319,7 @@ FILE *fp;
 char instr[1024];
 char * buffer;
 int count = 0, x, z = 0, convertedNum, front = 0;
+float vector1x, vector1y, vector1z, vector2x, vector2y, vector2z, normalx, normaly, normalz;
 Triangle * curr, * node;
 
 
@@ -417,116 +339,183 @@ Triangle * curr, * node;
 			}
 
 			else {
-					if(count == 0) {
-						buffer = strtok(instr, " ");
-						width = atoi(buffer);
+				if(count == 0) {
+					buffer = strtok(instr, " ");
+					width = atoi(buffer);
 
-						heightMap = malloc(width * sizeof(float *));
+					heightMap = malloc(width * sizeof(float *));
 
-						buffer = strtok(NULL, " ");
-						height = atoi(buffer);
+					buffer = strtok(NULL, " ");
+					height = atoi(buffer);
 
-						for(x = 0; x < width; x++){
-							heightMap[x] = malloc(height * sizeof(float));
+					for(x = 0; x < width; x++){
+						heightMap[x] = malloc(height * sizeof(float));
+					}
+
+					count++;
+					x = 0;
+				}
+
+				else if( count == 1) {
+					depth = atof(instr);
+					count++;
+				}
+
+				else {
+					buffer = strtok(instr, "  ");
+
+					while (buffer != NULL){
+						//printf("%d\n", atoi(buffer));
+						convertedNum = atof(buffer);
+
+						heightMap[x][z] = convertedNum;
+						if (convertedNum > maxDepth){
+							maxDepth = convertedNum;
 						}
 
-						count++;
-						x = 0;
-
-					}
-
-					else if( count == 1) {
-						depth = atof(instr);
-						count++;
-						//printf("Width: %d, Height: %d, Depth: %d\n", width, height, depth);
-
-						
-
-					}
-
-					else {
-						buffer = strtok(instr, "  ");
-
-						while (buffer != NULL){
-							//printf("%d\n", atoi(buffer));
-							convertedNum = atof(buffer);
-
-							heightMap[x][z] = convertedNum;
-							if (convertedNum > maxDepth){
-								maxDepth = convertedNum;
-							}
-
-							x++;
-							if(x == width){
-								z++;
-								x = 0;
-							}
-							buffer = strtok(NULL, "  ");
-						}//end buffer
-
-						// printf("%f\n", heightMap[1][1]);
-
-						// node = (Triangle *)malloc(sizeof(Triangle));
-						// node->v1 = (Vertex *)malloc(sizeof(Vertex));
-						// node->v2 = (Vertex *)malloc(sizeof(Vertex));
-						// node->v3 = (Vertex *)malloc(sizeof(Vertex));
-						// node->nextTri = NULL;
-
-						// curr = (Triangle *)malloc(sizeof(Triangle));
-						// curr->v1 = (Vertex *)malloc(sizeof(Vertex));
-						// curr->v2 = (Vertex *)malloc(sizeof(Vertex));
-						// curr->v3 = (Vertex *)malloc(sizeof(Vertex));
-						// curr->nextTri = NULL;
-
-						// printf("%f\n", heightMap[1][1]);
-
-						// for (x = 0; x < width-1; x++) { 
-						// 	for (z = 0; z < height-1; z++) {
-
-						// 		printf("%f\n", heightMap[x][z]);
-						// 		// //top left triangle
-						// 		// curr->v1->x = x;
-						// 		// curr->v1->y = heightMap[x][z];
-						// 		// curr->v1->z = z;
-
-						// 		// curr->v2->x = x;
-						// 		// curr->v2->y = heightMap[x][z+1];
-						// 		// curr->v2->z = z+1;
-
-						// 		// curr->v3->x = x+1;
-						// 		// curr->v3->y = heightMap[x+1][z];
-						// 		// curr->v3->z = z;
-
-						// // 		if(front == 0){
-						// // 			head = curr;
-						// // 			node = curr;
-						// // 			front = 1;
-						// // 		}
-						// // 		else{
-
-						// // 		}
-
-
-						// // 		//bottom right triangle
-						// // 		curr->v1->x = x;
-						// // 		curr->v1->y = heightMap[x][z+1];
-						// // 		curr->v1->z = z+1;
-
-						// // 		curr->v1->x = x+1;
-						// // 		curr->v1->y = heightMap[x+1][z+1];
-						// // 		curr->v1->z = z+1;
-
-						// // 		curr->v1->x = x+1;
-						// // 		curr->v1->y = heightMap[x+1][z];
-						// // 		curr->v1->z = z;
-						//  	}
-						// }
-					}
+						x++;
+						if(x == width){
+							z++;
+							x = 0;
+						}
+						buffer = strtok(NULL, "  ");
+					}//end buffer
+				}
 			}//end else
 		}//end while
-		
-	}//end else
-	fclose(fp);	
+		fclose(fp);
+
+		if(buffer == NULL){
+			node = (Triangle *)malloc(sizeof(Triangle));
+			node->v1 = (Vertex *)malloc(sizeof(Vertex));
+			node->v2 = (Vertex *)malloc(sizeof(Vertex));
+			node->v3 = (Vertex *)malloc(sizeof(Vertex));
+			curr->normal = (Normal *)malloc(sizeof(Normal));
+			node->nextTri = NULL;
+
+			for (x = 0; x < width-1; x++) { 
+				for (z = 0; z < height-1; z++) {
+
+					curr = (Triangle *)malloc(sizeof(Triangle));
+					curr->v1 = (Vertex *)malloc(sizeof(Vertex));
+					curr->v2 = (Vertex *)malloc(sizeof(Vertex));
+					curr->v3 = (Vertex *)malloc(sizeof(Vertex));
+					curr->normal = (Normal *)malloc(sizeof(Normal));
+					curr->nextTri = NULL;
+
+					//top left triangle
+					curr->v1->x = x;
+					curr->v1->y = heightMap[x][z];
+					curr->v1->z = z;
+
+					curr->v2->x = x;
+					curr->v2->y = heightMap[x][z+1];
+					curr->v2->z = z+1;
+
+					curr->v3->x = x+1;
+					curr->v3->y = heightMap[x+1][z];
+					curr->v3->z = z;
+
+					vector1x = x - x;
+					vector1y = (heightMap[(int)x][(int)z+1]) - (heightMap[(int)x][(int)z]);
+					vector1z = (z+1) - z;
+
+					vector2x = (x+1) - x;
+					vector2y = (heightMap[(int)x+1][(int)z]) - (heightMap[(int)x][(int)z]);
+					vector2z = z - z;
+
+					curr->normal->Nx = vector1y * vector2z - vector2y * vector1z;
+					curr->normal->Ny = vector1z * vector2x - vector2z * vector1x;
+					curr->normal->Nz = vector1x * vector2y - vector2x * vector1y;
+
+					if(front == 0){
+						
+						head = curr;
+						node = curr;
+						front = 1;
+
+						//free then remallo						
+						curr = (Triangle *)malloc(sizeof(Triangle));
+						curr->v1 = (Vertex *)malloc(sizeof(Vertex));
+						curr->v2 = (Vertex *)malloc(sizeof(Vertex));
+						curr->v3 = (Vertex *)malloc(sizeof(Vertex));
+						curr->normal = (Normal *)malloc(sizeof(Normal));
+						curr->nextTri = NULL;
+
+						//bottom right triangle
+						curr->v1->x = x;
+						curr->v1->y = heightMap[x][z+1];
+						curr->v1->z = z+1;
+
+						curr->v2->x = x+1;
+						curr->v2->y = heightMap[x+1][z+1];
+						curr->v2->z = z+1;
+
+						curr->v3->x = x+1;
+						curr->v3->y = heightMap[x+1][z];
+						curr->v3->z = z;
+
+						/* calculate Normal for bottom right triangle */
+						vector1x = (x+1) - x;
+						vector1y = (heightMap[(int)x+1][(int)z+1]) - (heightMap[(int)x][(int)z+1]);
+						vector1z = (z+1) - (z+1);
+
+						vector2x = (x+1) - x;
+						vector2y = (heightMap[(int)x+1][(int)z]) - (heightMap[(int)x][(int)z+1]);
+						vector2z = z - (z+1);
+
+						curr->normal->Nx = vector1y * vector2z - vector2y * vector1z;
+						curr->normal->Ny = vector1z * vector2x - vector2z * vector1x;
+						curr->normal->Nz = vector1x * vector2y - vector2x * vector1y;
+
+						node->nextTri = curr;
+						node = curr;						
+
+					}
+					else{
+						
+						node->nextTri = curr;
+						node = curr;						
+						curr = (Triangle *)malloc(sizeof(Triangle));
+						curr->v1 = (Vertex *)malloc(sizeof(Vertex));
+						curr->v2 = (Vertex *)malloc(sizeof(Vertex));
+						curr->v3 = (Vertex *)malloc(sizeof(Vertex));
+						curr->normal = (Normal *)malloc(sizeof(Normal));
+						curr->nextTri = NULL;
+
+						//bottom right triangle
+						curr->v1->x = x;
+						curr->v1->y = heightMap[x][z+1];
+						curr->v1->z = z+1;
+
+						curr->v2->x = x+1;
+						curr->v2->y = heightMap[x+1][z+1];
+						curr->v2->z = z+1;
+
+						curr->v3->x = x+1;
+						curr->v3->y = heightMap[x+1][z];
+						curr->v3->z = z;
+
+						/* calculate Normal for bottom right triangle */
+						vector1x = (x+1) - x;
+						vector1y = (heightMap[(int)x+1][(int)z+1]) - (heightMap[(int)x][(int)z+1]);
+						vector1z = (z+1) - (z+1);
+
+						vector2x = (x+1) - x;
+						vector2y = (heightMap[(int)x+1][(int)z]) - (heightMap[(int)x][(int)z+1]);
+						vector2z = z - (z+1);
+
+						curr->normal->Nx = vector1y * vector2z - vector2y * vector1z;
+						curr->normal->Ny = vector1z * vector2x - vector2z * vector1x;
+						curr->normal->Nz = vector1x * vector2y - vector2x * vector1y;
+
+						node->nextTri = curr;
+						node = curr;					
+					}
+			 	}
+			}
+		}//ends if buffer = NULL
+	}//end else	
 }
 
 /*  Main Loop
