@@ -90,6 +90,7 @@ GLfloat blue[]  = {0.0, 0.0, 1.0, 1.0};
 GLfloat red[]   = {1.0, 0.0, 0.0, 1.0};
 GLfloat green[] = {0.0, 1.0, 0.0, 1.0};
 GLfloat white[] = {1.0, 1.0, 1.0, 1.0};
+GLfloat light_gray[] = {0.3, 0.3, 0.3, 0.3};
 float x, z;
 float xModified, zModified;
 float vector1x, vector1y, vector1z, vector2x, vector2y, vector2z, normalx, normaly, normalz;
@@ -132,21 +133,22 @@ float vector1x, vector1y, vector1z, vector2x, vector2y, vector2z, normalx, norma
 	// glPopMatrix ();
 	/*test inputs */
 	glPushMatrix();
-	glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, red);
-	glMaterialfv(GL_FRONT, GL_SPECULAR, red);
+	glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, light_gray);
+	glMaterialfv(GL_FRONT, GL_SPECULAR, light_gray);
 
 	for (x = 0; x < width-1; x++) { 
 		for (z = 0; z < height-1; z++) {
 			glBegin(GL_TRIANGLES);
 
 			/* calculate Normal for top left triangle */
-			vector1x = (x+1) - x;
-			vector1y = (heightMap[(int)x+1][(int)z]) - (heightMap[(int)x][(int)z]);
-			vector1z = z - z;
 
-			vector2x = x - x;
-			vector2y = (heightMap[(int)x][(int)z+1]) - (heightMap[(int)x][(int)z]);
-			vector2z = (z+1) - z;
+			vector1x = x - x;
+			vector1y = (heightMap[(int)x][(int)z+1]) - (heightMap[(int)x][(int)z]);
+			vector1z = (z+1) - z;
+
+			vector2x = (x+1) - x;
+			vector2y = (heightMap[(int)x+1][(int)z]) - (heightMap[(int)x][(int)z]);
+			vector2z = z - z;
 
 			normalx = vector1y * vector2z - vector2y * vector1z;
 			normaly = vector1z * vector2x - vector2z * vector1x;
@@ -158,41 +160,41 @@ float vector1x, vector1y, vector1z, vector2x, vector2y, vector2z, normalx, norma
 			glNormal3f(normalx, normaly, normalz);
 			glVertex3f(xModified, (heightMap[(int)x][(int)z]), zModified);
 
-			xModified = (x+1);
-			zModified = z;
-			glVertex3f(xModified, (heightMap[(int)x+1][(int)z]), zModified);
-
 			xModified = x;
 			zModified = (z+1);
 			glVertex3f(xModified, (heightMap[(int)x][(int)z+1]), zModified);
 
+
+			xModified = (x+1);
+			zModified = z;
+			glVertex3f(xModified, (heightMap[(int)x+1][(int)z]), zModified);
+
 			
 			/* calculate Normal for bottom right triangle */
-			vector1x = (x+1) - (x+1);
-			vector1y = (heightMap[(int)x][(int)z+1]) - (heightMap[(int)x+1][(int)z]);
-			vector1z = (z+1) - z;
+			vector1x = (x+1) - x;
+			vector1y = (heightMap[(int)x+1][(int)z+1]) - (heightMap[(int)x][(int)z+1]);
+			vector1z = (z+1) - (z+1);
 
-			vector2x = x - x;
-			vector2y = (heightMap[(int)x+1][(int)z+1]) - (heightMap[(int)x+1][(int)z]);
-			vector2z = (z+1) - z;
+			vector2x = (x+1) - x;
+			vector2y = (heightMap[(int)x+1][(int)z]) - (heightMap[(int)x][(int)z+1]);
+			vector2z = z - (z+1);
 
 			normalx = vector1y * vector2z - vector2y * vector1z;
 			normaly = vector1z * vector2x - vector2z * vector1x;
 			normalz = vector1x * vector2y - vector2x * vector1y;
 
-
-			xModified = (x+1);
-			zModified = z;
-			glNormal3f(normalx, normaly, normalz);
-			glVertex3f(xModified, (heightMap[(int)x+1][(int)z]), zModified);
-
 			xModified = x;
 			zModified = (z+1);
+			glNormal3f(normalx, normaly, normalz);
 			glVertex3f(xModified, (heightMap[(int)x][(int)z+1]), zModified);
-
+			
 			xModified = (x+1);
 			zModified = (z+1);
 			glVertex3f(xModified, (heightMap[(int)x+1][(int)z+1]), zModified);
+
+			xModified = (x+1);
+			zModified = z;
+			glVertex3f(xModified, (heightMap[(int)x+1][(int)z]), zModified);
 			glEnd();
 		}
 	}
@@ -321,22 +323,33 @@ void motion(int x, int y) {
 		camX = -(x/(width/6)) * -sinf(10*(M_PI/180)) * cosf((45)*(M_PI/180));
 		camY = -(x/(depth/6)) * -sinf((45)*(M_PI/180));
 		camZ = (x/(height/6)) * cosf((10)*(M_PI/180)) * cosf((45)*(M_PI/180));
-		printf("Mouse dragged with left button at %i, %i\n", x, y);
+		//printf("Mouse dragged with left button at %i, %i\n", x, y);
 
 		glMatrixMode (GL_MODELVIEW);
 		glLoadIdentity ();
 
 		gluLookAt(camX,camY,camZ,   // Camera position
-          width/8, 0, height/8,    // Look at point
-          0.0, 1.0, 0.0);   // Up vector
+		  width/2, 0, height/2,    // Look at point
+		  0.0, 1.0, 0.0);   // Up vector
 		// gluLookAt(	fmod(x,17), fmod(depth,7)/2, (height/7)*(-1),
 		// 	fmod(width,7)/2, fmod(depth,7)/2, fmod(height,7)/2,
 		// 	1.0f, 1.0f,  0.0f);
 		display ();
 	}
 
-	else if(rButtonPressed == 1){
-		printf("Mouse dragged with right button at %i, %i\n", x, y);
+	else if(rButtonPressed >= 1){
+		//printf("Mouse dragged with right button at %i, %i\n", x, y);
+
+		glMatrixMode (GL_MODELVIEW);
+		glLoadIdentity ();
+
+		gluLookAt(width/2, y, height/2,    // Look at point
+			width/2, 0, height/2,
+        	0.0, 1.0, 0.0);   // Up vector
+		// gluLookAt(	fmod(x,17), fmod(depth,7)/2, (height/7)*(-1),
+		// 	fmod(width,7)/2, fmod(depth,7)/2, fmod(height,7)/2,
+		// 	1.0f, 1.0f,  0.0f);
+		display ();
 
 	}
 }
