@@ -40,6 +40,7 @@ int lighting = 0;	// use diffuse and specular lighting
 int smoothShading = 0;  // smooth or flat shading
 int textures = 0;
 int heightColor = 0;
+int randomColour = 0;
 
 float **heightMap;
 int width, height, depth, maxDepth = 0, lButtonPressed = 0, rButtonPressed = 0;
@@ -93,9 +94,10 @@ GLfloat green[] = {0.0, 1.0, 0.0, 1.0};
 GLfloat white[] = {1.0, 1.0, 1.0, 1.0};
 GLfloat light_gray[] = {0.3, 0.3, 0.3, 0.3};
 GLfloat brown[] = {0.5, 0.35, 0.05, 0.35};
-
+GLfloat random[] = {1.0, 1.0, 1.0, 1.0};
 
 float bottomThirdLimit, topThirdLimit;
+float randomR, randomG, randomB;
 Triangle * curr = head;
 
 	glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -125,7 +127,7 @@ Triangle * curr = head;
 
 	glPushMatrix();
 
-	if(heightColor == 1){
+	if(heightColor == 1 && randomColour == 0){
 		while(curr != NULL){
 			bottomThirdLimit = height * 0.33;
 			topThirdLimit = height * 0.67;
@@ -173,6 +175,34 @@ Triangle * curr = head;
 				glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, white);
 				glMaterialfv(GL_FRONT, GL_SPECULAR, white);	
 			}
+			glVertex3f(curr->v3->x, curr->v3->y, curr->v3->z);
+			glEnd();
+
+			curr = curr->nextTri;
+		}
+	}
+
+	else if (heightColor == 0 && randomColour == 1){
+		//RANDOM COLOUR!!!!!!!
+
+		while(curr != NULL){
+
+			randomR = (rand() % 101)/10;
+			randomG = (rand() % 101)/10;
+			randomB = (rand() % 101)/10;
+			//printf("R:%f, G: %f, B: %f\n",randomR, randomG, randomB );
+			random[0] = randomR;
+			random[1] = randomB;
+			random[2] = randomG;
+
+			glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, random);
+			glMaterialfv(GL_FRONT, GL_SPECULAR, random);
+
+
+			glBegin(GL_TRIANGLES);
+			glNormal3f(curr->normal->Nx, curr->normal->Ny, curr->normal->Nz);
+			glVertex3f(curr->v1->x, curr->v1->y, curr->v1->z);
+			glVertex3f(curr->v2->x, curr->v2->y, curr->v2->z);
 			glVertex3f(curr->v3->x, curr->v3->y, curr->v3->z);
 			glEnd();
 
@@ -228,6 +258,7 @@ void keyboard(unsigned char key, int x, int y)
 			smoothShading = 0;
 			textures = 0;
 			heightColor = 0;
+			randomColour = 0;
 			init();
 			display();
 			break;
@@ -237,6 +268,7 @@ void keyboard(unsigned char key, int x, int y)
 			smoothShading = 0;
 			textures = 0;
 			heightColor = 0;
+			randomColour = 0;
 			init();
 			display();
 			break;
@@ -246,6 +278,7 @@ void keyboard(unsigned char key, int x, int y)
 			smoothShading = 0;
 			textures = 0;
 			heightColor = 0;
+			randomColour = 0;
 			init();
 			display();
 			break;
@@ -255,6 +288,7 @@ void keyboard(unsigned char key, int x, int y)
 			smoothShading = 1;
 			textures = 0;
 			heightColor = 1;
+			randomColour = 0;
 			init();
 			display();
 			break;
@@ -262,8 +296,9 @@ void keyboard(unsigned char key, int x, int y)
 			lineDrawing = 0;
 			lighting = 1;
 			smoothShading = 1;
-			textures = 1;
+			textures = 0;
 			heightColor = 0;
+			randomColour = 1;
 			init();
 			display();
 			break;

@@ -14,4 +14,4 @@ ubuntu: a.c
 	gcc -o a a.c -lglut -lGLU -lGL -lXmu -lXext -lX11 -lm
 
 run:
-	./a textures/feep.pgm
+	./a textures/texture1.pgm
