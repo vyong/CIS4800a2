@@ -129,8 +129,8 @@ Triangle * curr = head;
 
 	if(heightColor == 1 && randomColour == 0){
 		while(curr != NULL){
-			bottomThirdLimit = height * 0.33;
-			topThirdLimit = height * 0.67;
+			bottomThirdLimit = maxDepth * 0.33;
+			topThirdLimit = maxDepth * 0.67;
 			glBegin(GL_TRIANGLES);
 			glNormal3f(curr->normal->Nx, curr->normal->Ny, curr->normal->Nz);
 
@@ -240,9 +240,9 @@ void reshape(int w, int h)
 	glMatrixMode (GL_MODELVIEW);
 	glLoadIdentity ();
 	// Set the camera
-	gluLookAt(	fmod(width,7)/2, fmod(depth,7)/2, ((height/7))*(-1),
-			fmod(width,7)/2, fmod(depth,7)/2, fmod(height,7)/2,
-			0.0, 1.0,  0.0);
+	gluLookAt(width/2, height/2, 10,    // Look at point
+			width/2, 0, height/2,
+        	0.0, 1.0, 0.0);   // Up vector
 }
 
 void keyboard(unsigned char key, int x, int y)
