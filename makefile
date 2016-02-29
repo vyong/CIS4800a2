@@ -14,4 +14,7 @@ ubuntu: a.c
 	gcc -o a a.c -lglut -lGLU -lGL -lXmu -lXext -lX11 -lm
 
 run:
-	./a textures/tracks.pgm
+	./a textures/feep.pgm
+
+valgrind:
+	 valgrind --gen-suppressions=all --leak-check=full --num-callers=40 --log-file=out --suppressions=opengl.supp --error-limit=no -v ./a texturesfeep.pgm

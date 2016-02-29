@@ -9,7 +9,7 @@ Complications
 **************
 There are two complications with the program. The first complication is that when the program initially loads up, if the height map isn't in origin [0,0,0], the camera won't show the height map. Only when you move the camera around with the left and right click capabilities, it will then show the height map.
 
-The second complication is the camera controls. I wasn't able to get the camera to rotate fully around the object, but holding the right button down allows you to view three sides of the object.
+The second complication is the camera controls. I wasn't able to get the camera to rotate fully around the object, but holding the right button down allows you to view three sides of the object. I have added functionality to move the camera with the W,A,S,D keys in case moving the camera with the mouse gets tedious.
 
 ************
 Compilation

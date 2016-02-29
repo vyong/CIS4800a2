@@ -6,14 +6,14 @@
 #include <string.h>
 #include <math.h>
 
-#include <GL/gl.h>
-#include <GL/glu.h>
-#include <GL/glx.h>
-#include <GL/glut.h>
+// #include <GL/gl.h>
+// #include <GL/glu.h>
+// #include <GL/glx.h>
+// #include <GL/glut.h>
 
-// #include <OpenGL/gl.h>
-// #include <OpenGL/glu.h>
-// #include <GLUT/glut.h>
+#include <OpenGL/gl.h>
+#include <OpenGL/glu.h>
+#include <GLUT/glut.h>
 
 struct Vertexes {
 	float x, y, z;
@@ -493,8 +493,9 @@ Triangle * curr, * node;
 			node->v1 = (Vertex *)malloc(sizeof(Vertex));
 			node->v2 = (Vertex *)malloc(sizeof(Vertex));
 			node->v3 = (Vertex *)malloc(sizeof(Vertex));
-			curr->normal = (Normal *)malloc(sizeof(Normal));
+			node->normal = (Normal *)malloc(sizeof(Normal));
 			node->nextTri = NULL;
+
 
 			for (x = 0; x < width-1; x++) { 
 				for (z = 0; z < height-1; z++) {
