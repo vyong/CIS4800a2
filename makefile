@@ -15,6 +15,3 @@ ubuntu: a.c
 
 run:
 	./a textures/feep.pgm
-
-valgrind:
-	 valgrind --gen-suppressions=all --leak-check=full --num-callers=40 --log-file=out --suppressions=opengl.supp --error-limit=no -v ./a texturesfeep.pgm
