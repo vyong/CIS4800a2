@@ -56,6 +56,29 @@ GLuint   textureID[1];
 
 Triangle * head;
 
+Normal * calculateNormal(int x1, int y1, int z1, int x2, int y2, int z2, int x3, int y3, int z3){
+	float vector1x, vector1y, vector1z, vector2x, vector2y, vector2z;
+	Normal * calculatedNormal;
+
+	//calculatedNormal = (Normal *)malloc(sizeof(Normal));
+
+	vector1x = x2 - x1;
+	vector1y = y2 - y1;
+	vector1z = z2 - z1;
+
+	vector2x = x3 - x1;
+	vector2y = y3 - y1;
+	vector2z = z3 - z1;
+
+	calculatedNormal -> Nx = vector1y * vector2z - vector2y * vector1z;
+	calculatedNormal -> Ny = vector1z * vector2x - vector2z * vector1x;
+	calculatedNormal -> Nz = vector1x * vector2y - vector2x * vector1y;
+
+	printf("%f, %f, %f\n", calculatedNormal -> Nx, calculatedNormal -> Ny, calculatedNormal -> Nz);
+
+	return calculatedNormal;
+}
+
 /*  Initialize material property and light source.
  */
 void init (void)
